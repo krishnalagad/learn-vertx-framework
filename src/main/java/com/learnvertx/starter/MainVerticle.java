@@ -3,6 +3,7 @@ package com.learnvertx.starter;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
+import io.vertx.ext.web.Router;
 
 public class MainVerticle extends AbstractVerticle {
 
@@ -13,14 +14,24 @@ public class MainVerticle extends AbstractVerticle {
 
   @Override
   public void start(Promise<Void> startPromise) throws Exception {
-    vertx.createHttpServer().requestHandler(req -> {
-      req.response()
-        .putHeader("content-type", "text/plain")
-        .end("Hello from Vert.x!");
-    }).listen(8888, http -> {
+
+    Router router = Router.router(vertx);
+
+    // Router 1
+    router.get("/api/v1/hello").handler(ctx -> {
+      ctx.request().response().end("Hello Vert.x World");
+    });
+
+    // Router 2
+    router.get("/api/v1/hello/:name").handler(ctx -> {
+      String name = ctx.pathParam("name");
+      ctx.request().response().end(String.format("Hello %s", name));
+    });
+
+    vertx.createHttpServer().requestHandler(router).listen(8080, http -> {
       if (http.succeeded()) {
         startPromise.complete();
-        System.out.println("HTTP server started on port 8888");
+        System.out.println("HTTP server started on port 8080");
       } else {
         startPromise.fail(http.cause());
       }
