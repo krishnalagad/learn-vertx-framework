@@ -3,30 +3,24 @@ package com.learnvertx.starter;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Promise;
-import io.vertx.core.Vertx;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 
 public class MainVerticle extends AbstractVerticle {
-
-  public static void main(String[] args) {
-    Vertx vertx = Vertx.vertx();
-    vertx.deployVerticle(new MainVerticle());
-  }
-
   @Override
   public void start(Promise<Void> startPromise) throws Exception {
-    DeploymentOptions options = new DeploymentOptions()
-      .setWorker(true)
-      .setInstances(8);
+//    DeploymentOptions options = new DeploymentOptions()
+//      .setWorker(true)
+//      .setInstances(8);
 
-    vertx.deployVerticle("com.learnvertx.starter.HelloVerticle", options);
+//    vertx.deployVerticle("com.learnvertx.starter.HelloVerticle", options);
+    vertx.deployVerticle(new HelloVerticle());
 
     Router router = Router.router(vertx);
 
     // Router 1
     router.get("/api/v1/hello").handler(this::helloVertx);
-
+    
     // Router 2
     router.get("/api/v1/hello/:name").handler(this::helloName);
 

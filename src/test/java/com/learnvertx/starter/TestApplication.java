@@ -8,11 +8,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 @ExtendWith(VertxExtension.class)
-public class TestMainVerticle {
+public class TestApplication {
 
   @BeforeEach
   void deploy_verticle(Vertx vertx, VertxTestContext testContext) {
-    vertx.deployVerticle(new MainVerticle(), testContext.succeeding(id -> testContext.completeNow()));
+    vertx.deployVerticle(new Application(), testContext.succeeding(id -> testContext.completeNow()));
   }
 
   @Test
