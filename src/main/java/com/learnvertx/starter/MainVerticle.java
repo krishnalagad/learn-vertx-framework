@@ -1,6 +1,7 @@
 package com.learnvertx.starter;
 
 import io.vertx.core.AbstractVerticle;
+import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
 import io.vertx.ext.web.Router;
@@ -15,8 +16,11 @@ public class MainVerticle extends AbstractVerticle {
 
   @Override
   public void start(Promise<Void> startPromise) throws Exception {
+    DeploymentOptions options = new DeploymentOptions()
+      .setWorker(true)
+      .setInstances(8);
 
-    vertx.deployVerticle(new HelloVerticle());
+    vertx.deployVerticle("com.learnvertx.starter.HelloVerticle", options);
 
     Router router = Router.router(vertx);
 
@@ -26,6 +30,7 @@ public class MainVerticle extends AbstractVerticle {
     // Router 2
     router.get("/api/v1/hello/:name").handler(this::helloName);
 
+    // created server here and set port number.
     vertx.createHttpServer().requestHandler(router).listen(8080, http -> {
       if (http.succeeded()) {
         startPromise.complete();
