@@ -1,8 +1,10 @@
 package com.learnvertx.starter;
 
-import io.vertx.core.AbstractVerticle;
-import io.vertx.core.DeploymentOptions;
-import io.vertx.core.Promise;
+import io.vertx.config.ConfigRetriever;
+import io.vertx.config.ConfigRetrieverOptions;
+import io.vertx.config.ConfigStoreOptions;
+import io.vertx.core.*;
+import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 
@@ -20,19 +22,41 @@ public class MainVerticle extends AbstractVerticle {
 
     // Router 1
     router.get("/api/v1/hello").handler(this::helloVertx);
-    
+
     // Router 2
     router.get("/api/v1/hello/:name").handler(this::helloName);
 
-    // created server here and set port number.
-    vertx.createHttpServer().requestHandler(router).listen(8080, http -> {
-      if (http.succeeded()) {
-        startPromise.complete();
-        System.out.println("HTTP server started on port 8080");
-      } else {
-        startPromise.fail(http.cause());
-      }
-    });
+    ConfigStoreOptions defaultConfig = new ConfigStoreOptions()
+      .setType("file")
+      .setFormat("json")
+      .setConfig(new JsonObject().put("path", "config.json"));
+
+    ConfigRetrieverOptions opts = new ConfigRetrieverOptions()
+      .addStore(defaultConfig);
+
+    ConfigRetriever configRetriever = ConfigRetriever.create(vertx, opts);
+
+    Handler<AsyncResult<JsonObject>> handler = asyncResult -> this.handleConfigResults(startPromise, router, asyncResult);
+    configRetriever.getConfig(handler);
+  }
+
+  void handleConfigResults(Promise<Void> startPromise, Router router, AsyncResult<JsonObject> asyncResult) {
+    if (asyncResult.succeeded()) {
+      JsonObject config = asyncResult.result();
+      JsonObject httpKey = config.getJsonObject("http");
+      int httpPort = httpKey.getInteger("port");
+
+      // created server here and set port number.
+      vertx.createHttpServer().requestHandler(router).listen(httpPort, http -> {
+        if (http.succeeded()) {
+          startPromise.complete();
+          System.out.println("HTTP server started on port " + httpPort);
+        }
+      });
+    } else {
+      // Other stuff here
+      startPromise.fail("Unable to load configurations.");
+    }
   }
 
   void helloVertx(RoutingContext ctx) {
