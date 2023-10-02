@@ -1,0 +1,9 @@
+curl command to execute api in terminal
+- curl http://localhost:8080/api/v1/hello -UseBasicParsing
+
+command to execute api in terminal with header value
+- $headers = @{
+    "AUTH_TOKEN" = "myAuthToken"
+}
+
+- Invoke-WebRequest -Uri "http://localhost:8080/api/v1/hello" -Headers $headers -UseBasicParsing
