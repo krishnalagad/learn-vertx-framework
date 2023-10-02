@@ -4,6 +4,7 @@ import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
 import io.vertx.ext.web.Router;
+import io.vertx.ext.web.RoutingContext;
 
 public class MainVerticle extends AbstractVerticle {
 
@@ -15,18 +16,15 @@ public class MainVerticle extends AbstractVerticle {
   @Override
   public void start(Promise<Void> startPromise) throws Exception {
 
+    vertx.deployVerticle(new HelloVerticle());
+
     Router router = Router.router(vertx);
 
     // Router 1
-    router.get("/api/v1/hello").handler(ctx -> {
-      ctx.request().response().end("Hello Vert.x World");
-    });
+    router.get("/api/v1/hello").handler(this::helloVertx);
 
     // Router 2
-    router.get("/api/v1/hello/:name").handler(ctx -> {
-      String name = ctx.pathParam("name");
-      ctx.request().response().end(String.format("Hello %s", name));
-    });
+    router.get("/api/v1/hello/:name").handler(this::helloName);
 
     vertx.createHttpServer().requestHandler(router).listen(8080, http -> {
       if (http.succeeded()) {
@@ -36,9 +34,18 @@ public class MainVerticle extends AbstractVerticle {
         startPromise.fail(http.cause());
       }
     });
+  }
 
-//    vertx.createHttpServer().requestHandler(req -> {
-//      req.response().end("Hello World API");
-//    }).listen(8080);
+  void helloVertx(RoutingContext ctx) {
+    vertx.eventBus().request("hello.vertx.addr", "", reply -> {
+      ctx.request().response().end((String) reply.result().body());
+    });
+  }
+
+  void helloName(RoutingContext ctx) {
+    String name = ctx.pathParam("name");
+    vertx.eventBus().request("hello.named.addr", name, reply -> {
+      ctx.request().response().end((String) reply.result().body());
+    });
   }
 }
