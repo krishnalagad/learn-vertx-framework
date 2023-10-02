@@ -26,6 +26,7 @@ public class MainVerticle extends AbstractVerticle {
     // Router 2
     router.get("/api/v1/hello/:name").handler(this::helloName);
 
+    // setting type, format and path of configuration file.
     ConfigStoreOptions defaultConfig = new ConfigStoreOptions()
       .setType("file")
       .setFormat("json")
