@@ -20,6 +20,15 @@ public class MainVerticle extends AbstractVerticle {
 
     Router router = Router.router(vertx);
 
+    router.route().handler(ctx -> {
+      String authToken = ctx.request().getHeader("AUTH_TOKEN");
+      if (authToken != null && "myAuthToken".contentEquals(authToken)) {
+        ctx.next();
+      } else {
+        ctx.response().setStatusCode(401).setStatusMessage("UNAUTHORIZED").end();
+      }
+    });
+
     // Router 1
     router.get("/api/v1/hello").handler(this::helloVertx);
 
