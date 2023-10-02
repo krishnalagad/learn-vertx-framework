@@ -7,6 +7,7 @@ import io.vertx.core.*;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
+import io.vertx.ext.web.handler.StaticHandler;
 
 public class MainVerticle extends AbstractVerticle {
   @Override
@@ -34,6 +35,9 @@ public class MainVerticle extends AbstractVerticle {
 
     // Router 2
     router.get("/api/v1/hello/:name").handler(this::helloName);
+
+    // static route
+    router.route().handler(StaticHandler.create("web"));
 
     // setting type, format and path of configuration file.
     ConfigStoreOptions defaultConfig = new ConfigStoreOptions()
