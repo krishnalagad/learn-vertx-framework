@@ -4,14 +4,13 @@ import com.learnvertx.starter.model.Task;
 import com.learnvertx.starter.model.TaskDto;
 import com.learnvertx.starter.model.TasksList;
 import io.vertx.core.Future;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaDelete;
-import jakarta.persistence.criteria.Predicate;
-import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.*;
 import org.hibernate.reactive.stage.Stage;
 
 import java.util.Optional;
+import java.util.List;
 import java.util.concurrent.CompletionStage;
+import java.util.stream.Collectors;
 
 public record TaskRepositoryImpl(Stage.SessionFactory sessionFactory) implements TaskRepository {
 
@@ -27,7 +26,20 @@ public record TaskRepositoryImpl(Stage.SessionFactory sessionFactory) implements
 
   @Override
   public Future<TaskDto> updateTask(TaskDto task) {
-    return null;
+    CriteriaBuilder criteriaBuilder = sessionFactory.getCriteriaBuilder();
+    CriteriaUpdate<Task> criteriaUpdate = criteriaBuilder.createCriteriaUpdate(Task.class);
+    Root<Task> root = criteriaUpdate.from(Task.class);
+    Predicate predicate = criteriaBuilder.equal(root.get("id"), task.id());
+
+    criteriaUpdate.set("content", task.content());
+    criteriaUpdate.set("completed", task.completed());
+    criteriaUpdate.where(predicate);
+
+    CompletionStage<Integer> result = sessionFactory.withTransaction((s, t) -> s.createQuery(criteriaUpdate)
+      .executeUpdate());
+    Future<TaskDto> future = Future.fromCompletionStage(result).map(r -> task);
+
+    return future;
   }
 
   @Override
@@ -56,6 +68,18 @@ public record TaskRepositoryImpl(Stage.SessionFactory sessionFactory) implements
 
   @Override
   public Future<TasksList> findTasksByUser(Integer userId) {
-    return null;
+    TaskDtoMapper taskDtoMapper = new TaskDtoMapper();
+    CriteriaBuilder criteriaBuilder = sessionFactory.getCriteriaBuilder();
+    CriteriaQuery<Task> criteriaQuery = criteriaBuilder.createQuery(Task.class);
+    Root<Task> root = criteriaQuery.from(Task.class);
+    Predicate predicate = criteriaBuilder.equal(root.get("userId"), userId);
+    criteriaQuery.where(predicate);
+
+    CompletionStage<List<Task>> result = sessionFactory.withTransaction((s, t) -> s.createQuery(criteriaQuery)
+      .getResultList());
+    Future<TasksList> future = Future.fromCompletionStage(result)
+      .map(list -> list.stream().map(taskDtoMapper).collect(Collectors.toList()))
+      .map(list -> new TasksList(list));
+    return future;
   }
 }

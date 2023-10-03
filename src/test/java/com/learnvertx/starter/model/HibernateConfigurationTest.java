@@ -112,6 +112,66 @@ class HibernateConfigurationTest {
     });
   }
 
+  // Test to delete record form db
+  @Test
+  void removeTaskTest(Vertx vertx, VertxTestContext context) {
+    TaskDto taskDto = new TaskDto(null, 101, "My 101th new task content", true,
+      LocalDateTime.now());
+    context.verify(() -> {
+      this.taskRepository.createTask(taskDto)
+        .compose(r -> {
+          Assertions.assertEquals(101, r.userId());
+          return this.taskRepository.removeTask(r.id());
+        }).compose(r -> this.taskRepository.findtaskById(22))
+        .onFailure(err -> context.failNow(err))
+        .onSuccess(r -> {
+          Assertions.assertTrue(r.isEmpty());
+          context.completeNow();
+        });
+    });
+  }
+
+  // Test to check update record from db
+  @Test
+  void updateTaskTest(Vertx vertx, VertxTestContext context) {
+    TaskDto taskDto = new TaskDto(null, 102, "My 102th new task content", false,
+      LocalDateTime.now());
+    context.verify(() -> {
+      this.taskRepository.createTask(taskDto)
+        .compose(r -> {
+          Assertions.assertEquals(102, r.userId());
+          TaskDto updatedTask = new TaskDto(r.id(), r.userId(), "Updated content goes here", true, r.createdAt());
+          return this.taskRepository.updateTask(updatedTask);
+        }).compose(r -> {
+          Assertions.assertTrue(r.completed());
+          Assertions.assertEquals("Updated content goes here", r.content());
+          return this.taskRepository.findtaskById(r.id());
+        }).onFailure(err -> context.failNow(err))
+        .onSuccess(r -> {
+          Assertions.assertTrue(r.isPresent());
+          TaskDto result = r.get();
+          Assertions.assertTrue(result.completed());
+          Assertions.assertEquals("Updated content goes here", result.content());
+          context.completeNow();
+        });
+    });
+  }
+
+  // Test to check task by userId
+  @Test
+  void findTasksByUserTest(Vertx vertx, VertxTestContext context) {
+    context.verify(() -> {
+      this.taskRepository.findTasksByUser(7)
+        .onFailure(err -> context.failNow(err))
+        .onSuccess(r -> {
+          for (TaskDto dto: r.tasks())
+            System.out.println(dto);
+          Assertions.assertEquals(3, r.tasks().size());
+          context.completeNow();
+        });
+    });
+  }
+
   @AfterEach
   public void finish(Vertx vertx, VertxTestContext testContext) {
     System.out.println("after");
