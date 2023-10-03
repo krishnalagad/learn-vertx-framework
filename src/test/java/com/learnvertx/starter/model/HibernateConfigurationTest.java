@@ -2,6 +2,7 @@ package com.learnvertx.starter.model;
 
 import com.learnvertx.starter.repository.TaskRepository;
 import com.learnvertx.starter.repository.TaskRepositoryImpl;
+import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
@@ -18,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.Properties;
 
 @ExtendWith(VertxExtension.class)
@@ -61,25 +63,27 @@ class HibernateConfigurationTest {
     context.completeNow();
   }
 
-  @Test   // Test to check creation of task.
+  // Test to check creation of task.
+  @Test
   void createTaskTest(Vertx vertx, VertxTestContext context) {
-    TaskDto taskDto = new TaskDto(null, 10, "My 7th task content", true, LocalDateTime.now());
+    TaskDto taskDto = new TaskDto(null, 20, "My 12th task content", true, LocalDateTime.now());
     context.verify(() -> {
       this.taskRepository.createTask(taskDto)
         .onFailure(err -> context.failNow(err))
         .onSuccess(result -> {
           Assertions.assertNotNull(result);
           Assertions.assertNotNull(result.id());
-          Assertions.assertEquals(10, result.id());
+          Assertions.assertEquals(20, result.id());
           context.completeNow();
         });
     });
   }
 
-  @Test   // Test to check get one task
+  // Test to check get one task
+  @Test
   void findTaskByIdDoesNotExistsTest(Vertx vertx, VertxTestContext context) {
     context.verify(() -> {
-      this.taskRepository.findtaskById(1)
+      this.taskRepository.findtaskById(170)
 //        .compose(r -> this.taskRepository.findtaskById(1))
         .onSuccess(result -> {
           Assertions.assertTrue(result.isEmpty());
@@ -89,15 +93,20 @@ class HibernateConfigurationTest {
     });
   }
 
-  @Test   // Test to check create and get task
+  // Test to check create and get task
+  @Test
   void findTaskByIdExistsTest(Vertx vertx, VertxTestContext context) {
-    TaskDto taskDto = new TaskDto(null, 7, "My 7th new task content", true, LocalDateTime.now());
+    TaskDto taskDto = new TaskDto(null, 11, "My 11th new task content", true, LocalDateTime.now());
     context.verify(() -> {
       this.taskRepository.createTask(taskDto)
-        .compose(r -> this.taskRepository.findtaskById(r.id()))
+        .compose(r -> {
+          Future<Optional<TaskDto>> future = this.taskRepository.findtaskById(r.id());
+          return future;
+        })
         .onFailure(err -> context.failNow(err))
         .onSuccess(result -> {
           Assertions.assertTrue(result.isPresent());
+          logger.info("{}", result);
           context.completeNow();
         });
     });
