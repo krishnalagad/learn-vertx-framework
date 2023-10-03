@@ -33,7 +33,12 @@ public record TaskRepositoryImpl(Stage.SessionFactory sessionFactory) implements
 
   @Override
   public Future<Optional<TaskDto>> findtaskById(Integer id) {
-    return null;
+    TaskDtoMapper dtoMapper = new TaskDtoMapper();
+    CompletionStage<Task> result = sessionFactory.withTransaction((s, t) -> s.find(Task.class, id));
+    Future<Optional<TaskDto>> future = Future.fromCompletionStage(result)
+      .map(r -> Optional.ofNullable(r))
+      .map(r -> r.map(dtoMapper));
+    return future;
   }
 
   @Override

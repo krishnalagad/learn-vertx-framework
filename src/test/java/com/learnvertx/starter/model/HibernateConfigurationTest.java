@@ -40,7 +40,7 @@ class HibernateConfigurationTest {
     hibernateProps.put("hibernate.connection.username", "root");
     hibernateProps.put("hibernate.connection.password", "krishna24");
     hibernateProps.put("jakarta.persistence.schema-generation.database.action", "update");
-    hibernateProps.put("hibernate.dialect", "org.hibernate.dialect.MySQL8Dialect");
+    hibernateProps.put("hibernate.dialect", "org.hibernate.dialect.MySQLDialect");
 
     // 2. Create Hibernate configurations
     Configuration hibernateConfig = new Configuration();
@@ -61,16 +61,43 @@ class HibernateConfigurationTest {
     context.completeNow();
   }
 
-  @Test
+  @Test   // Test to check creation of task.
   void createTaskTest(Vertx vertx, VertxTestContext context) {
-    TaskDto taskDto = new TaskDto(null, 5, "My 5th task content", false, LocalDateTime.now());
+    TaskDto taskDto = new TaskDto(null, 10, "My 7th task content", true, LocalDateTime.now());
     context.verify(() -> {
       this.taskRepository.createTask(taskDto)
         .onFailure(err -> context.failNow(err))
         .onSuccess(result -> {
           Assertions.assertNotNull(result);
           Assertions.assertNotNull(result.id());
-          Assertions.assertEquals(5, result.id());
+          Assertions.assertEquals(10, result.id());
+          context.completeNow();
+        });
+    });
+  }
+
+  @Test   // Test to check get one task
+  void findTaskByIdDoesNotExistsTest(Vertx vertx, VertxTestContext context) {
+    context.verify(() -> {
+      this.taskRepository.findtaskById(1)
+//        .compose(r -> this.taskRepository.findtaskById(1))
+        .onSuccess(result -> {
+          Assertions.assertTrue(result.isEmpty());
+          context.completeNow();
+        })
+        .onFailure(err -> context.failNow(err));
+    });
+  }
+
+  @Test   // Test to check create and get task
+  void findTaskByIdExistsTest(Vertx vertx, VertxTestContext context) {
+    TaskDto taskDto = new TaskDto(null, 7, "My 7th new task content", true, LocalDateTime.now());
+    context.verify(() -> {
+      this.taskRepository.createTask(taskDto)
+        .compose(r -> this.taskRepository.findtaskById(r.id()))
+        .onFailure(err -> context.failNow(err))
+        .onSuccess(result -> {
+          Assertions.assertTrue(result.isPresent());
           context.completeNow();
         });
     });
