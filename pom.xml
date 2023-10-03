@@ -52,6 +52,10 @@
       <groupId>io.vertx</groupId>
       <artifactId>vertx-mysql-client</artifactId>
     </dependency>
+    <dependency>
+      <groupId>io.vertx</groupId>
+      <artifactId>vertx-jdbc-client</artifactId>
+    </dependency>
     <!-- https://mvnrepository.com/artifact/org.hibernate.reactive/hibernate-reactive-core -->
     <dependency>
       <groupId>org.hibernate.reactive</groupId>
