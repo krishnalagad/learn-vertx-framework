@@ -4,6 +4,10 @@ import com.learnvertx.starter.model.Task;
 import com.learnvertx.starter.model.TaskDto;
 import com.learnvertx.starter.model.TasksList;
 import io.vertx.core.Future;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaDelete;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import org.hibernate.reactive.stage.Stage;
 
 import java.util.Optional;
@@ -28,7 +32,16 @@ public record TaskRepositoryImpl(Stage.SessionFactory sessionFactory) implements
 
   @Override
   public Future<Void> removeTask(Integer id) {
-    return null;
+    CriteriaBuilder criteriaBuilder = sessionFactory.getCriteriaBuilder();
+    CriteriaDelete<Task> criteriaDelete = criteriaBuilder.createCriteriaDelete(Task.class);
+    Root<Task> root = criteriaDelete.from(Task.class);
+    Predicate predicate = criteriaBuilder.equal(root.get("id"), id);
+    criteriaDelete.where(predicate);
+
+    CompletionStage<Integer> result = sessionFactory.withTransaction((s, t) -> s.createQuery(criteriaDelete)
+      .executeUpdate());
+    Future<Void> future = Future.fromCompletionStage(result).compose(r -> Future.succeededFuture());
+    return future;
   }
 
   @Override
