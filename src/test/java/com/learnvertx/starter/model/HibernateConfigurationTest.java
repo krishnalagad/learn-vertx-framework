@@ -1,6 +1,7 @@
 package com.learnvertx.starter.model;
 
-import io.vertx.core.Future;
+import com.learnvertx.starter.repository.TaskRepository;
+import com.learnvertx.starter.repository.TaskRepositoryImpl;
 import io.vertx.core.Vertx;
 import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
@@ -8,21 +9,29 @@ import org.hibernate.cfg.Configuration;
 import org.hibernate.reactive.provider.ReactiveServiceRegistryBuilder;
 import org.hibernate.reactive.stage.Stage;
 import org.hibernate.service.ServiceRegistry;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.LocalDateTime;
 import java.util.Properties;
-import java.util.concurrent.CompletionStage;
 
 @ExtendWith(VertxExtension.class)
 class HibernateConfigurationTest {
+
+  private TaskRepository taskRepository;
+
+  private Logger logger = LoggerFactory.getLogger(HibernateConfigurationTest.class);
 
   /**
    * @param vertx
    * @param context
    */
-  @Test
+  @BeforeEach
   void initializeHibernateWithCodeTest(Vertx vertx, VertxTestContext context) {
     // 1. Create properties with config data
     Properties hibernateProps = new Properties();
@@ -48,20 +57,30 @@ class HibernateConfigurationTest {
       .buildSessionFactory(serviceRegistry)
       .unwrap(Stage.SessionFactory.class);
 
-    // Perform actions on DB.
-    Task task = new Task();
-    task.setUserId(1);
-    task.setContent("This is new task");
-    task.setCompleted(false);
-    task.setCreatedAt(LocalDateTime.now());
+    this.taskRepository = new TaskRepositoryImpl(sessionFactory);
+    context.completeNow();
+  }
 
-    System.out.println("Task ID before insertion is : " + task.getId());
-    CompletionStage<Void> insertionResult = sessionFactory.withTransaction((s, t) -> s.persist(task));
+  @Test
+  void createTaskTest(Vertx vertx, VertxTestContext context) {
+    TaskDto taskDto = new TaskDto(null, 5, "My 5th task content", false, LocalDateTime.now());
+    context.verify(() -> {
+      this.taskRepository.createTask(taskDto)
+        .onFailure(err -> context.failNow(err))
+        .onSuccess(result -> {
+          Assertions.assertNotNull(result);
+          Assertions.assertNotNull(result.id());
+          Assertions.assertEquals(5, result.id());
+          context.completeNow();
+        });
+    });
+  }
 
-    Future<Void> future = Future.fromCompletionStage(insertionResult);
-    context.verify(() -> future.onFailure(err -> context.failNow(err)).onSuccess(r -> {
-      System.out.println("Task ID before insertion is : " + task.getId());
-      context.completeNow();
+  @AfterEach
+  public void finish(Vertx vertx, VertxTestContext testContext) {
+    System.out.println("after");
+    vertx.close(testContext.succeeding(response -> {
+      testContext.completeNow();
     }));
   }
 
