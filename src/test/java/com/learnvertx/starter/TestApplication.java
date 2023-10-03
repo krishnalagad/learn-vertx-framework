@@ -1,5 +1,6 @@
 package com.learnvertx.starter;
 
+import io.vertx.core.Verticle;
 import io.vertx.core.Vertx;
 import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
@@ -12,7 +13,7 @@ public class TestApplication {
 
   @BeforeEach
   void deploy_verticle(Vertx vertx, VertxTestContext testContext) {
-    vertx.deployVerticle(new Application(), testContext.succeeding(id -> testContext.completeNow()));
+    vertx.deployVerticle((Verticle) new Application(), testContext.succeeding(id -> testContext.completeNow()));
   }
 
   @Test
