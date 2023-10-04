@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Entity
 @Table(name = "vertx_projects")
 @Data
@@ -19,4 +21,7 @@ public class Project {
   private Integer userId;
 
   private String name;
+
+  @OneToMany(mappedBy = "project")
+  private List<Task> tasks;
 }

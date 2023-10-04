@@ -68,7 +68,8 @@ class HibernateConfigurationTest {
   // Test to check creation of task.
   @Test
   void createTaskTest(Vertx vertx, VertxTestContext context) {
-    TaskDto taskDto = new TaskDto(null, 20, "My 12th task content", true, LocalDateTime.now());
+    TaskDto taskDto = new TaskDto(null, 20, "My 12th task content", true, LocalDateTime.now(),
+      Optional.empty());
     context.verify(() -> {
       this.taskRepository.createTask(taskDto)
         .onFailure(err -> context.failNow(err))
@@ -98,7 +99,8 @@ class HibernateConfigurationTest {
   // Test to check create and get task
   @Test
   void findTaskByIdExistsTest(Vertx vertx, VertxTestContext context) {
-    TaskDto taskDto = new TaskDto(null, 11, "My 11th new task content", true, LocalDateTime.now());
+    TaskDto taskDto = new TaskDto(null, 11, "My 11th new task content", true, LocalDateTime.now(),
+      Optional.empty());
     context.verify(() -> {
       this.taskRepository.createTask(taskDto)
         .compose(r -> {
@@ -118,7 +120,7 @@ class HibernateConfigurationTest {
   @Test
   void removeTaskTest(Vertx vertx, VertxTestContext context) {
     TaskDto taskDto = new TaskDto(null, 101, "My 101th new task content", true,
-      LocalDateTime.now());
+      LocalDateTime.now(), Optional.empty());
     context.verify(() -> {
       this.taskRepository.createTask(taskDto)
         .compose(r -> {
@@ -137,12 +139,13 @@ class HibernateConfigurationTest {
   @Test
   void updateTaskTest(Vertx vertx, VertxTestContext context) {
     TaskDto taskDto = new TaskDto(null, 102, "My 102th new task content", false,
-      LocalDateTime.now());
+      LocalDateTime.now(), Optional.empty());
     context.verify(() -> {
       this.taskRepository.createTask(taskDto)
         .compose(r -> {
           Assertions.assertEquals(102, r.userId());
-          TaskDto updatedTask = new TaskDto(r.id(), r.userId(), "Updated content goes here", true, r.createdAt());
+          TaskDto updatedTask = new TaskDto(r.id(), r.userId(), "Updated content goes here",
+            true, r.createdAt(), Optional.empty());
           return this.taskRepository.updateTask(updatedTask);
         }).compose(r -> {
           Assertions.assertTrue(r.completed());

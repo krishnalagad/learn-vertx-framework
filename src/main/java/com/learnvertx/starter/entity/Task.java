@@ -21,4 +21,8 @@ public class Task {
   private boolean completed;
   private LocalDateTime createdAt;
 
+  @ManyToOne
+  @JoinColumn(name = "projectId", nullable = true)
+  private Project project;
+
 }
