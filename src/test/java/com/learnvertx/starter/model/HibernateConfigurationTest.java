@@ -43,6 +43,7 @@ class HibernateConfigurationTest {
     hibernateProps.put("hibernate.connection.password", "krishna24");
     hibernateProps.put("jakarta.persistence.schema-generation.database.action", "update");
     hibernateProps.put("hibernate.dialect", "org.hibernate.dialect.MySQLDialect");
+    hibernateProps.put("hibernate.generate_statistics", true);
 
     // 2. Create Hibernate configurations
     Configuration hibernateConfig = new Configuration();
