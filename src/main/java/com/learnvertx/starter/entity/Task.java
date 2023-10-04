@@ -1,4 +1,4 @@
-package com.learnvertx.starter.model;
+package com.learnvertx.starter.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

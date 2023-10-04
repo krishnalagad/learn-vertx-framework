@@ -1,4 +1,4 @@
-package com.learnvertx.starter.model;
+package com.learnvertx.starter.entity;
 
 import com.learnvertx.starter.dto.TaskDto;
 import com.learnvertx.starter.repository.TaskRepository;

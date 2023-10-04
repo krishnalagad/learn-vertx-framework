@@ -1,6 +1,6 @@
 package com.learnvertx.starter.mappers;
 
-import com.learnvertx.starter.model.Task;
+import com.learnvertx.starter.entity.Task;
 import com.learnvertx.starter.dto.TaskDto;
 
 import java.util.function.Function;

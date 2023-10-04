@@ -1,4 +1,4 @@
-package com.learnvertx.starter.model;
+package com.learnvertx.starter.entity;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
