@@ -1,8 +1,10 @@
 package com.learnvertx.starter.repository;
 
+import com.learnvertx.starter.mappers.TaskDtoMapper;
+import com.learnvertx.starter.mappers.TaskEntityMapper;
 import com.learnvertx.starter.model.Task;
-import com.learnvertx.starter.model.TaskDto;
-import com.learnvertx.starter.model.TasksList;
+import com.learnvertx.starter.dto.TaskDto;
+import com.learnvertx.starter.dto.TasksList;
 import io.vertx.core.Future;
 import jakarta.persistence.criteria.*;
 import org.hibernate.reactive.stage.Stage;

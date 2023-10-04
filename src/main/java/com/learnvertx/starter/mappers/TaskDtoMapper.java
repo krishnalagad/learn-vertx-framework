@@ -1,11 +1,11 @@
-package com.learnvertx.starter.repository;
+package com.learnvertx.starter.mappers;
 
 import com.learnvertx.starter.model.Task;
-import com.learnvertx.starter.model.TaskDto;
+import com.learnvertx.starter.dto.TaskDto;
 
 import java.util.function.Function;
 
-class TaskDtoMapper implements Function<Task, TaskDto> {
+public class TaskDtoMapper implements Function<Task, TaskDto> {
   @Override
   public TaskDto apply(Task task) {
     return new TaskDto(task.getId(), task.getUserId(), task.getContent(), task.isCompleted(), task.getCreatedAt());

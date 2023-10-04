@@ -1,5 +1,6 @@
 package com.learnvertx.starter.model;
 
+import com.learnvertx.starter.dto.TaskDto;
 import com.learnvertx.starter.repository.TaskRepository;
 import com.learnvertx.starter.repository.TaskRepositoryImpl;
 import io.vertx.core.Future;

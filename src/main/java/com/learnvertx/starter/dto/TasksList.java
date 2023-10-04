@@ -1,4 +1,4 @@
-package com.learnvertx.starter.model;
+package com.learnvertx.starter.dto;
 
 import java.util.List;
 
