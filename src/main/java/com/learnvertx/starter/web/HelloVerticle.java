@@ -1,4 +1,4 @@
-package com.learnvertx.starter;
+package com.learnvertx.starter.web;
 
 import io.vertx.core.AbstractVerticle;
 
