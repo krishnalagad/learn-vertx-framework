@@ -1,5 +1,6 @@
 package com.learnvertx.starter.web;
 
+import com.learnvertx.starter.dto.ProjectDto;
 import com.learnvertx.starter.service.ProjectService;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
@@ -26,8 +27,10 @@ public class ProjectVerticle extends AbstractVerticle {
         this.projectService.findProjectById(id)
           .onSuccess(result -> {
             if (result.isPresent()) {
-              System.out.println(result);
-              JsonObject body = JsonObject.mapFrom(result.get());
+              ProjectDto projectDto = result.get();
+              System.out.println("Result.get(): " + projectDto);
+              JsonObject body = JsonObject.mapFrom(projectDto);
+              System.out.println("JsonObject: " + body);
               context.response().setStatusCode(200).putHeader("Content-Type", "application/json")
                 .end(body.encode());
             } else {
