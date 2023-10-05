@@ -43,6 +43,29 @@ public class ProjectVerticle extends AbstractVerticle {
       }
     });
 
+    // API to get all projects
+    router.get("/api/v1/projects/:userId").handler(context -> {
+      try {
+        Integer userId = Integer.parseInt(context.pathParam("userId"));
+        this.projectService.findProjectsByUser(userId)
+          .onSuccess(result -> {
+            if (!result.projects().isEmpty()) {
+              System.out.println(result);
+              JsonObject projects = JsonObject.mapFrom(result);
+              context.response().setStatusCode(200).putHeader("Content-Type", "application/json")
+                .end(projects.encode());
+            } else {
+              context.response().setStatusCode(404).end("No Projects found with userId: " + userId);
+            }
+          })
+          .onFailure(err -> {
+
+          });
+      } catch (Exception e) {
+        context.response().setStatusCode(500).end(e.getMessage());
+      }
+    });
+
     vertx.createHttpServer().requestHandler(router).listen(8080, http -> {
       if (http.succeeded()) {
         startPromise.complete();
