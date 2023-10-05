@@ -23,7 +23,41 @@ public class Application {
 //    Vertx vertx = Vertx.vertx();
 //    vertx.deployVerticle(new MainVerticle());
 
+    // 1. Create properties with config data
+    Properties hibernateProps = new Properties();
 
-    Vertx.vertx().deployVerticle(new MainVerticle());
+    hibernateProps.put("hibernate.connection.url", "jdbc:mysql://localhost:3306/revise?serverTimezone=UTC");
+    hibernateProps.put("hibernate.connection.username", "root");
+    hibernateProps.put("hibernate.connection.password", "krishna24");
+    hibernateProps.put("jakarta.persistence.schema-generation.database.action", "update");
+    hibernateProps.put("hibernate.dialect", "org.hibernate.dialect.MySQLDialect");
+    hibernateProps.put("hibernate.show_sql", true);
+    hibernateProps.put("hibernate.format_sql", true);
+//    hibernateProps.put("hibernate.generate_statistics", true);
+
+    // 2. Create Hibernate configurations
+    Configuration hibernateConfig = new Configuration();
+    hibernateConfig.setProperties(hibernateProps);
+    hibernateConfig.addAnnotatedClass(Task.class);
+    hibernateConfig.addAnnotatedClass(Project.class);
+
+    //3. Create ServiceRegistry
+    ServiceRegistry serviceRegistry = new ReactiveServiceRegistryBuilder()
+      .applySettings(hibernateConfig.getProperties())
+      .build();
+
+    //4. Create SessionFactory
+    Stage.SessionFactory sessionFactory = hibernateConfig
+      .buildSessionFactory(serviceRegistry)
+      .unwrap(Stage.SessionFactory.class);
+
+    ProjectRepository projectRepository = null;
+//    this.taskRepository = new TaskRepositoryImpl(sessionFactory);
+    projectRepository = new ProjectRepositoryImpl(sessionFactory);
+
+    ProjectService projectService = new ProjectServiceImpl(projectRepository);
+
+//    Vertx.vertx().deployVerticle(new MainVerticle());
+    Vertx.vertx().deployVerticle(new ProjectVerticle(projectService));
   }
 }
