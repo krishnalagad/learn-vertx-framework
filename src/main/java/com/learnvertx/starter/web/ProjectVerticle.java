@@ -31,15 +31,15 @@ public class ProjectVerticle extends AbstractVerticle {
               System.out.println("Result.get(): " + projectDto);
               JsonObject body = JsonObject.mapFrom(projectDto);
               System.out.println("JsonObject: " + body);
-              context.response().setStatusCode(200).putHeader("Content-Type", "application/json")
+              context.request().response().setStatusCode(200).putHeader("Content-Type", "application/json")
                 .end(body.encode());
             } else {
-              context.response().setStatusCode(404).end("No Record found with Id: " + id);
+              context.request().response().setStatusCode(404).end("No Record found with Id: " + id);
             }
           })
           .onFailure(err -> {
               System.err.println("Error processing request: " + err.getMessage());
-              context.response().setStatusCode(500).end(err.getMessage());
+              context.request().response().setStatusCode(500).end(err.getMessage());
             });
       } catch (NumberFormatException e) {
         context.response().setStatusCode(500).end(e.getMessage());
@@ -55,14 +55,15 @@ public class ProjectVerticle extends AbstractVerticle {
             if (!result.projects().isEmpty()) {
               System.out.println(result);
               JsonObject projects = JsonObject.mapFrom(result);
-              context.response().setStatusCode(200).putHeader("Content-Type", "application/json")
+              context.request().response().setStatusCode(200).putHeader("Content-Type", "application/json")
                 .end(projects.encode());
             } else {
-              context.response().setStatusCode(404).end("No Projects found with userId: " + userId);
+              context.request().response().setStatusCode(404).end("No Projects found with userId: " + userId);
             }
           })
           .onFailure(err -> {
-
+            System.out.println("Error in processing request: " + err.getMessage());
+            context.request().response().setStatusCode(500).end();
           });
       } catch (Exception e) {
         context.response().setStatusCode(500).end(e.getMessage());
