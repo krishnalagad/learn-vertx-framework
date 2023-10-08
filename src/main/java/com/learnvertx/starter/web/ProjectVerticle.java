@@ -70,6 +70,14 @@ public class ProjectVerticle extends AbstractVerticle {
       }
     });
 
+    // API to delete project by id
+    router.delete("/api/v1/project/:id").handler(context -> {
+      Integer id = Integer.valueOf(context.pathParam("id"));
+      this.projectService.removeProject(id)
+        .onSuccess(result -> context.response().setStatusCode(204).end("Project deleted successfully."))
+        .onFailure(err -> context.response().setStatusCode(500).end("Error in deleting project."));
+    });
+
     vertx.createHttpServer().requestHandler(router).listen(8080, http -> {
       if (http.succeeded()) {
         startPromise.complete();

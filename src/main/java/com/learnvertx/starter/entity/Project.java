@@ -22,6 +22,6 @@ public class Project {
 
   private String name;
 
-  @OneToMany(mappedBy = "project")
+  @OneToMany(mappedBy = "project", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
   private List<Task> tasks;
 }

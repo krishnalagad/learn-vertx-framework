@@ -70,11 +70,11 @@ public class RelationshipTest {
   // Test to create project and mapped it to task
   @Test
   void createRelationshipTest(Vertx vertx, VertxTestContext context) {
-    ProjectDto projectDto = new ProjectDto(null, 1, "Vertx Web Microservices");
+    ProjectDto projectDto = new ProjectDto(null, 2, "Vertx Web REST API");
     context.verify(() -> {
       this.projectRepository.createProject(projectDto).compose(project -> {
-        Assertions.assertEquals(3, project.id());
-        TaskDto taskDto = new TaskDto(null, 1, "Task-Add Records", false, LocalDateTime.now(),
+        Assertions.assertEquals(4, project.id());
+        TaskDto taskDto = new TaskDto(null, 2, "Task-Add Records", false, LocalDateTime.now(),
           Optional.of(project));
         return taskRepository.createTask(taskDto);
       }).onSuccess(result -> {
