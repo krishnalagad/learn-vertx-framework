@@ -1,6 +1,7 @@
 package com.learnvertx.starter.web;
 
 import com.learnvertx.starter.dto.ProjectDto;
+import com.learnvertx.starter.dto.ProjectsList;
 import com.learnvertx.starter.service.ProjectService;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
@@ -31,10 +32,15 @@ public class ProjectVerticle extends AbstractVerticle {
             if (result.isPresent()) {
               ProjectDto projectDto = result.get();
               System.out.println("Result.get(): " + projectDto);
-              JsonObject body = JsonObject.mapFrom(projectDto);
+//              JsonObject body = JsonObject.mapFrom(projectDto);
+//              JsonObject body = new JsonObject().put("response", projectDto);
+              JsonObject body = new JsonObject();
+              body.put("id", projectDto.id());
+              body.put("userId", projectDto.userId());
+              body.put("name", projectDto.name());
               System.out.println("JsonObject: " + body);
               context.request().response().setStatusCode(200).putHeader("Content-Type", "application/json")
-                .end(body.encode());
+                .end(body.encodePrettily());
             } else {
               context.request().response().setStatusCode(404).end("No Record found with Id: " + id);
             }
@@ -49,23 +55,57 @@ public class ProjectVerticle extends AbstractVerticle {
     });
 
     // API to get all projects
+//    router.get("/api/v1/projects/:userId").handler(context -> {
+//      try {
+//        Integer userId = Integer.parseInt(context.pathParam("userId"));
+//        this.projectService.findProjectsByUser(userId)
+//          .onSuccess(result -> {
+//            if (!result.projects().isEmpty()) {
+//              System.out.println(result);
+//              JsonObject projects = JsonObject.mapFrom(result.projects());
+////              JsonObject projects = new JsonObject();
+////              projects.put("response", result);
+//              System.out.println(projects);
+//              context.request().response().setStatusCode(200).putHeader("Content-Type", "application/json")
+//                .end(projects.encode());
+//            } else {
+//              context.request().response().setStatusCode(404).end("No Projects found with userId: " + userId);
+//            }
+//          })
+//          .onFailure(err -> {
+//            System.out.println("Error in processing request: " + err.getMessage());
+//            context.request().response().setStatusCode(500).end();
+//          });
+//      } catch (Exception e) {
+//        context.response().setStatusCode(500).end(e.getMessage());
+//      }
+//    });
+
     router.get("/api/v1/projects/:userId").handler(context -> {
       try {
         Integer userId = Integer.parseInt(context.pathParam("userId"));
         this.projectService.findProjectsByUser(userId)
-          .onSuccess(result -> {
-            if (!result.projects().isEmpty()) {
-              System.out.println(result);
-              JsonObject projects = JsonObject.mapFrom(result);
-              context.request().response().setStatusCode(200).putHeader("Content-Type", "application/json")
-                .end(projects.encode());
+          .onComplete(result -> {
+            if (result.succeeded()) {
+              ProjectsList projectsList = result.result();
+              if (!projectsList.projects().isEmpty()) {
+                System.out.println("ProjectList:" + projectsList.projects());
+                JsonObject projects = JsonObject.mapFrom(projectsList.projects());
+                System.out.println("JsonObject: " + projects);
+                context.request().response()
+                  .setStatusCode(200)
+                  .putHeader("Content-Type", "application/json")
+                  .end(projects.encode());
+              } else {
+                context.response()
+                  .setStatusCode(404)
+                  .end("No Projects found with userId: " + userId);
+              }
             } else {
-              context.request().response().setStatusCode(404).end("No Projects found with userId: " + userId);
+              Throwable err = result.cause();
+              System.out.println("Error in processing request: " + err.getMessage());
+              context.response().setStatusCode(500).end();
             }
-          })
-          .onFailure(err -> {
-            System.out.println("Error in processing request: " + err.getMessage());
-            context.request().response().setStatusCode(500).end();
           });
       } catch (Exception e) {
         context.response().setStatusCode(500).end(e.getMessage());
