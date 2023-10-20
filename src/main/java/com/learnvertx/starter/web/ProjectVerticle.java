@@ -90,12 +90,12 @@ public class ProjectVerticle extends AbstractVerticle {
               ProjectsList projectsList = result.result();
               if (!projectsList.projects().isEmpty()) {
                 System.out.println("ProjectList:" + projectsList.projects());
-                JsonObject projects = JsonObject.mapFrom(projectsList.projects());
-                System.out.println("JsonObject: " + projects);
+//                JsonObject projects = JsonObject.mapFrom(projectsList.projects());
+//                System.out.println("JsonObject: " + projects);
                 context.request().response()
                   .setStatusCode(200)
-                  .putHeader("Content-Type", "application/json")
-                  .end(projects.encode());
+//                  .putHeader("Content-Type", "application/json")
+                  .end(projectsList.projects().toString());
               } else {
                 context.response()
                   .setStatusCode(404)
@@ -130,8 +130,8 @@ public class ProjectVerticle extends AbstractVerticle {
       this.projectService.createProject(payload)
         .onSuccess(result -> {
           System.out.println("Project Created: " + result);
-          JsonObject responseBody = JsonObject.mapFrom(result);
-          context.response().setStatusCode(201).end(responseBody.encode());
+//          JsonObject responseBody = JsonObject.mapFrom(result);
+          context.response().setStatusCode(201).end(result.toString());
         })
         .onFailure(err -> context.response().setStatusCode(500).end());
     });
