@@ -1,4 +1,4 @@
-package com.learnvertx.rest_api;
+package com.learnvertx.rest_api.web;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;

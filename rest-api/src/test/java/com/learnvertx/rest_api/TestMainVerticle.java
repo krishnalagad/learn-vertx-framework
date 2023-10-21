@@ -1,5 +1,6 @@
 package com.learnvertx.rest_api;
 
+import com.learnvertx.rest_api.web.MainVerticle;
 import io.vertx.core.Vertx;
 import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
