@@ -90,12 +90,14 @@ public class ProjectVerticle extends AbstractVerticle {
               ProjectsList projectsList = result.result();
               if (!projectsList.projects().isEmpty()) {
                 System.out.println("ProjectList:" + projectsList.projects());
+                String jsonString = projectsList.projects().toString();
+                JsonObject jsonObject = new JsonObject(jsonString);
 //                JsonObject projects = JsonObject.mapFrom(projectsList.projects());
-//                System.out.println("JsonObject: " + projects);
+                System.out.println("JsonObject: " + jsonObject);
                 context.request().response()
                   .setStatusCode(200)
 //                  .putHeader("Content-Type", "application/json")
-                  .end(projectsList.projects().toString());
+                  .end(jsonObject.encode());
               } else {
                 context.response()
                   .setStatusCode(404)
