@@ -1,12 +1,9 @@
 package com.learnvertx.starter.web;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.learnvertx.starter.dto.ProjectDto;
 import com.learnvertx.starter.dto.ProjectsList;
 import com.learnvertx.starter.service.ProjectService;
 import io.vertx.core.AbstractVerticle;
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Handler;
 import io.vertx.core.Promise;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
