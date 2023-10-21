@@ -1,9 +1,12 @@
 package com.learnvertx.starter.web;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.learnvertx.starter.dto.ProjectDto;
 import com.learnvertx.starter.dto.ProjectsList;
 import com.learnvertx.starter.service.ProjectService;
 import io.vertx.core.AbstractVerticle;
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
 import io.vertx.core.Promise;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
@@ -91,13 +94,26 @@ public class ProjectVerticle extends AbstractVerticle {
               if (!projectsList.projects().isEmpty()) {
                 System.out.println("ProjectList:" + projectsList.projects());
                 String jsonString = projectsList.projects().toString();
+//                ObjectMapper objectMapper = new ObjectMapper();
+//                try {
+//                  ObjectMapper obj = objectMapper.readValue(jsonString, ObjectMapper.class);
+//                  System.out.println("ObjectMapper:" + obj);
+//                  context.request().response()
+//                    .setStatusCode(200)
+//                    .putHeader("Content-Type", "application/json")
+//                    .end((Handler<AsyncResult<Void>>) obj);
+//                } catch (Exception e) {
+//                  e.printStackTrace();
+//                  throw new RuntimeException(e);
+//                }
                 JsonObject jsonObject = new JsonObject(jsonString);
 //                JsonObject projects = JsonObject.mapFrom(projectsList.projects());
                 System.out.println("JsonObject: " + jsonObject);
+
                 context.request().response()
                   .setStatusCode(200)
 //                  .putHeader("Content-Type", "application/json")
-                  .end(jsonObject.encode());
+                  .end(jsonObject.encodePrettily());
               } else {
                 context.response()
                   .setStatusCode(404)
